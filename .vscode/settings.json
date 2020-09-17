@@ -16,11 +16,15 @@
     "datasource",
     "fa",
     "nometadata",
+    "numerictextbox",
+    "outdent",
     "part",
     "postversion",
     "qs",
     "spfx",
+    "textbox",
     "visns",
-    "web"
+    "web",
+    "webpart"
   ]
 }

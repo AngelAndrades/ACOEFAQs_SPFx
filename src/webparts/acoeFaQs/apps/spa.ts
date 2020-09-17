@@ -1,8 +1,6 @@
 import * as $ from 'jquery';
 import '@progress/kendo-ui';
 import { ds } from  './datasource';
-import { sp } from '@pnp/sp';
-import { PermissionKind } from '@pnp/sp/security';
 
 export class ModelState extends kendo.data.ObservableObject {
     protected collapsed: string[] = [];
@@ -22,18 +20,17 @@ export class SPA {
 
     constructor() {}
 
-    public static getInstance(faqGuid: string, categoriesGuid: string): SPA {
+    public static getInstance(faqGuid: string, categoriesGuid: string, canEdit: boolean): SPA {
         this.tabStrip = null;
         this.faqGridOptions = null;
         this.faqGrid = null;
         this.categoriesGridOptions = null;
         this.categoriesGrid = null;
-
         const state = new ModelState();
 
-        this.tabStrip = $('#tabStrip').kendoTabStrip().data('kendoTabStrip');
-
         $(() => {
+            this.tabStrip = $('#tabStrip').kendoTabStrip().data('kendoTabStrip');
+
             const dsFAQs = ds({ 
                 guid: faqGuid,
                 dsName: 'dsFAQs',
@@ -63,53 +60,52 @@ export class SPA {
                     }
                 }
             });
-            dsFAQCategories.read().then(_ => state.set('collapsed', dsFAQCategories.data().map(item => item['Title'])));
-
-            const Editors = {
-                editor: (container, options) => {
-                    $('<textarea required name="' + options.field + '" rows="3" cols="25"></textarea>')
-                    .appendTo(container)
-                    .kendoEditor({ 
-                        tools: ["bold","italic","underline","justifyLeft","justifyCenter","justifyRight","justifyFull","insertUnorderedList","insertOrderedList","indent","outdent","createLink","unlink","subscript","superscript","tableWizard","createTable","addRowAbove","addRowBelow","addColumnLeft","addColumnRight","deleteRow","deleteColumn","formatting","cleanFormatting","fontName","fontSize","foreColor"]
-                    });
-                },
-                categories: (container, options) => {
-                    $('<input required name="' + options.field + '"/>')
-                    .appendTo(container)
-                    .kendoDropDownList({
-                        valuePrimitive: true,
-                        optionLabel: 'Select a category...',
-                        dataTextField: 'Title',
-                        dataValueField: 'Title',
-                        dataSource: dsFAQCategories
-                    });
-                }
-            };
-
-            const Events = {
-                onDataBound: e => {
-                    for (let category of state.get('collapsed')) {
-                        this.faqGrid.collapseGroup('.k-grouping-row:contains(' + category + ')');
+            dsFAQCategories.read()
+            .then(_ => state.set('collapsed', dsFAQCategories.data().map(item => item['Title'])))
+            .then(_ => {
+                const Events = {
+                    onDataBound: e => {
+                        for (let category of state.get('collapsed')) {
+                            this.faqGrid.collapseGroup('.k-grouping-row:contains("' + category + '")');
+                        }
                     }
-                }
-            };
-
-            const Utils = {
-                rowGroupKey: (row, grid: kendo.ui.Grid) => {
-                    let next: [] = row.nextUntil('[data-uid]').next(),
-                        item: object = grid.dataItem(next.length ? next : row.next()),
-                        groupIdx: number = row.children('.k-group-cell').length,
-                        groups: [] = grid.dataSource.group(),
-                        field: string = grid.dataSource.group()[groupIdx].field,
-                        groupValue: string = (item[field] != null) ? item[field] : '';
-                    
-                    return groupValue;
-                }
-            };
-
-            $.when( sp.web.currentUserHasPermissions(PermissionKind.EditListItems) )
-            .then(hasEditPermissions => {
-                if (hasEditPermissions) {
+                };
+    
+                const Utils = {
+                    rowGroupKey: (row, grid: kendo.ui.Grid) => {
+                        let next: [] = row.nextUntil('[data-uid]').next(),
+                            item: object = grid.dataItem(next.length ? next : row.next()),
+                            groupIdx: number = row.children('.k-group-cell').length,
+                            groups: [] = grid.dataSource.group(),
+                            field: string = grid.dataSource.group()[groupIdx].field,
+                            groupValue: string = (item[field] != null) ? item[field] : '';
+                        
+                        return groupValue;
+                    }
+                };
+                
+                if (canEdit) {
+                    const Editors = {
+                        editor: (container, options) => {
+                            $('<textarea required name="' + options.field + '" rows="3" cols="25"></textarea>')
+                            .appendTo(container)
+                            .kendoEditor({ 
+                                tools: ["bold","italic","underline","justifyLeft","justifyCenter","justifyRight","justifyFull","insertUnorderedList","insertOrderedList","indent","outdent","createLink","unlink","subscript","superscript","tableWizard","createTable","addRowAbove","addRowBelow","addColumnLeft","addColumnRight","deleteRow","deleteColumn","formatting","cleanFormatting","fontName","fontSize","foreColor"]
+                            });
+                        },
+                        categories: (container, options) => {
+                            $('<input required name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoDropDownList({
+                                valuePrimitive: true,
+                                optionLabel: 'Select a category...',
+                                dataTextField: 'Title',
+                                dataValueField: 'Title',
+                                dataSource: dsFAQCategories
+                            });
+                        }
+                    };
+        
                     this.faqGridOptions = {
                         dataSource: dsFAQs,
                         columnMenu: true,
@@ -134,7 +130,7 @@ export class SPA {
                         ],
                         dataBound: Events.onDataBound
                     };
-
+    
                     this.categoriesGridOptions = {
                         dataSource: dsFAQCategories,
                         columnMenu: true,
@@ -147,7 +143,7 @@ export class SPA {
                             { field: 'Title', title: 'Category Name' }
                         ]
                     };
-
+    
                     this.categoriesGrid = $('#categoriesGrid').kendoGrid(this.categoriesGridOptions).data('kendoGrid');
                 }
                 else {
@@ -169,20 +165,18 @@ export class SPA {
                         columns: [
                             { field: 'Title', title: 'Question' },
                             { field: 'Answer', title: 'Answer' },
-                            { field: 'Category', title: 'Category', editor: Editors.categories, hidden: true, aggregates: [ 'count' ], groupHeaderTemplate: "#= value #: #= count #" }
+                            { field: 'Category', title: 'Category', hidden: true, aggregates: [ 'count' ], groupHeaderTemplate: "#= value #: #= count #" }
                         ],
                         dataBound: Events.onDataBound
                     };
                 }
-            })
-            .then(_ => {
+    
                 this.faqGrid = $('#faqGrid').kendoGrid(this.faqGridOptions).data('kendoGrid');
-
                 // Add event to grid to toggle grouping
                 this.faqGrid.table.on('click', '.k-grouping-row .k-i-collapse, .k-grouping-row .k-i-expand', e => {
                     let row = e.currentTarget.closest('tr');
                     let categoryName = Utils.rowGroupKey($(row), this.faqGrid);
-
+    
                     let newCollapsed: string[] = null;
                     if ($(row).find('.k-i-collapse').length != 0) {
                         newCollapsed = state.get('collapsed').filter(item => item != categoryName);
@@ -192,9 +186,11 @@ export class SPA {
                     }
                     state.set('collapsed', newCollapsed);
                 });
-            });
+            })
+            .catch(err => console.log(err) );
+    
+            return SPA.instance;
         });
-
-        return SPA.instance;
+        return false;
     }
 }

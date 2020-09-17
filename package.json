@@ -22,9 +22,7 @@
     "@pnp/graph": "^2.0.8",
     "@pnp/sp": "^2.0.8",
     "@pnp/spfx-property-controls": "1.19.0",
-    "@progress/kendo-ui": "^2020.2.617",
-    "@types/jquery": "^3.5.1",
-    "@types/kendo-ui": "^2020.2.0"
+    "@progress/kendo-ui": "^2020.2.617"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "1.11.0",
@@ -37,6 +35,8 @@
     "@types/mocha": "2.2.38",
     "ajv": "~5.2.2",
     "@types/webpack-env": "1.13.1",
-    "@types/es6-promise": "0.0.33"
+    "@types/es6-promise": "0.0.33",
+    "@types/jquery": "^3.5.1",
+    "@types/kendo-ui": "^2020.2.0"
   }
 }
