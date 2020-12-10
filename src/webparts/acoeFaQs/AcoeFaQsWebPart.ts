@@ -41,11 +41,11 @@ export default class AcoeFaQsWebPart extends BaseClientSideWebPart<IAcoeFaQsWebP
     /*
       Load external CDN files (JS/CSS)
     */
-    SPComponentLoader.loadCss('https://kendo.cdn.telerik.com/2020.2.617/styles/kendo.common-material.min.css');
-    SPComponentLoader.loadCss('https://kendo.cdn.telerik.com/2020.2.617/styles/kendo.material.min.css');
+    SPComponentLoader.loadCss('https://kendo.cdn.telerik.com/2020.3.1118/styles/kendo.common-material.min.css');
+    SPComponentLoader.loadCss('https://kendo.cdn.telerik.com/2020.3.1118/styles/kendo.material.min.css');
 
-    SPComponentLoader.loadScript('https://kendo.cdn.telerik.com/2020.2.617/js/jszip.min.js');
-    //SPComponentLoader.loadScript('https://kendo.cdn.telerik.com/2020.2.617/js/kendo.all.min.js');
+    SPComponentLoader.loadScript('https://kendo.cdn.telerik.com/22020.3.1118/js/jszip.min.js');
+    //SPComponentLoader.loadScript('https://kendo.cdn.telerik.com/2020.3.1118/js/kendo.all.min.js');
 
     sp.web.currentUserHasPermissions(PermissionKind.EditListItems).then(canEdit => {
       if (canEdit) {

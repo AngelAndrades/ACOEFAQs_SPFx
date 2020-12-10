@@ -43,7 +43,7 @@ export class SPA {
                         Category: { type: 'string' }
                     }
                 },
-                pageSize: 50,
+                pageSize: 500,
                 group: { field: 'Category', aggregates: [
                     { field: 'Category', aggregate: 'count' }
                 ] }
@@ -111,9 +111,9 @@ export class SPA {
                         columnMenu: true,
                         editable: 'popup',
                         pageable: {
-                            pageSize: 5,
+                            pageSize: 10,
                             buttonCount: 5,
-                            pageSizes: [5, 10, 25, 'all'],
+                            pageSizes: [10, 25, 'all'],
                             messages: {
                                 display: 'Showing {0}-{1} from {2} FAQs',
                                 empty: 'No FAQs found.',
@@ -124,8 +124,8 @@ export class SPA {
                         toolbar: [ 'create', 'search' ],
                         columns: [
                             { command: ['edit', 'destroy'], title: '' },
-                            { field: 'Title', title: 'Question', editor: Editors.editor },
-                            { field: 'Answer', title: 'Answer', editor: Editors.editor },
+                            { field: 'Title', title: 'Question', template: '#= Title #', editor: Editors.editor },
+                            { field: 'Answer', title: 'Answer', template: '#= Answer #', editor: Editors.editor },
                             { field: 'Category', title: 'Category', editor: Editors.categories, hidden: true, aggregates: [ 'count' ], groupHeaderTemplate: "#= value #: #= count #" }
                         ],
                         dataBound: Events.onDataBound
@@ -151,9 +151,9 @@ export class SPA {
                         dataSource: dsFAQs,
                         columnMenu: true,
                         pageable: {
-                            pageSize: 5,
+                            pageSize: 10,
                             buttonCount: 5,
-                            pageSizes: [5, 10, 25, 'all'],
+                            pageSizes: [10, 25, 'all'],
                             messages: {
                                 display: 'Showing {0}-{1} from {2} FAQs',
                                 empty: 'No FAQs found.',
@@ -163,8 +163,8 @@ export class SPA {
                         sortable: true,
                         toolbar: [ 'search' ],
                         columns: [
-                            { field: 'Title', title: 'Question' },
-                            { field: 'Answer', title: 'Answer' },
+                            { field: 'Title', title: 'Question', template: '#= Title #' },
+                            { field: 'Answer', title: 'Answer', template: '#= Answer #' },
                             { field: 'Category', title: 'Category', hidden: true, aggregates: [ 'count' ], groupHeaderTemplate: "#= value #: #= count #" }
                         ],
                         dataBound: Events.onDataBound
